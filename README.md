@@ -32,29 +32,6 @@ The **UDP Factorio Proxy** is a web API service built with ASP.NET Core (.NET 8)
 
 ## Getting Started
 
-### Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/udp-factorio-proxy.git
-cd udp-factorio-proxy
-```
-
-### Build the Application
-
-You can build the solution using the .NET CLI:
-
-```bash
-dotnet build
-```
-
-## Docker Setup
-
-This project includes both a `Dockerfile` for building the ASP.NET Core Web API application and a `docker-compose.yml` file for setting up the multi-container environment.
-
-### Dockerfile
-
-The Dockerfile uses the .NET 8 runtime and installs the necessary components to manage Docker containers via the Docker.DotNet library.
-
 ### docker-compose.yml
 
 The `docker-compose.yml` file defines two services:
