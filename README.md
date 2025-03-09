@@ -34,7 +34,7 @@ The **UDP Factorio Proxy** is a web API service built with ASP.NET Core (.NET 8)
 
 ### docker-compose.yml
 
-The `docker-compose.yml` file defines two services:
+The [`docker-compose.yml`](docker-compose.yml) file defines two services:
 
 - **udp-proxy-api:**  
   The ASP.NET Core Web API service that creates and manages proxy containers.
