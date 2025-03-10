@@ -8,6 +8,8 @@ services:
     environment:
       #- PUBLIC_ADDRESS=127.0.0.1 # here should be your public IP address for the service.
       - PROXY_LIFETIME=359 # 6h
+      - PROXY_START_PORT=40000
+      - PROXY_MAX_COUNT=100
     ports:
       - "80:8080"
     depends_on:

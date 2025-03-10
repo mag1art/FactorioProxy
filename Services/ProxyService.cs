@@ -11,7 +11,8 @@ namespace FactorioProxy.Services
         // UDP port of the Factorio server
         private readonly int factorioServerPort = 34197;
         // Base port for dynamic proxy containers
-        private readonly int baseProxyPort = 40000;
+        private int baseProxyPort;
+        private int maxProxyContainers;
         private int nextAvailablePort;
 
         // Public address for client connections, read from the environment variable PUBLIC_ADDRESS
@@ -49,6 +50,19 @@ namespace FactorioProxy.Services
             }
             proxyLifetime = TimeSpan.FromMinutes(lifetimeMinutes);
 
+            var startPortStr = Environment.GetEnvironmentVariable("PROXY_START_PORT") ?? "40000";
+            if (!int.TryParse(startPortStr, out baseProxyPort))
+            {
+                baseProxyPort = 40000;
+            }
+            nextAvailablePort = baseProxyPort;
+
+            var maxCountStr = Environment.GetEnvironmentVariable("PROXY_MAX_COUNT") ?? "100";
+            if (!int.TryParse(maxCountStr, out maxProxyContainers))
+            {
+                maxProxyContainers = 100;
+            }
+
             try
             {
                 // For Linux use Unix socket; for Windows, use "npipe://./pipe/docker_engine"
@@ -76,6 +90,13 @@ namespace FactorioProxy.Services
         /// </summary>
         public async Task<string> CreateProxy()
         {
+            if (activeProxies.Count >= maxProxyContainers)
+            {
+                var message = $"Maximum proxy container limit reached: {maxProxyContainers}";
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             int containerPort = GetNextAvailablePort();
             string containerName = $"socat-proxy-{containerPort}";
 
@@ -193,8 +214,14 @@ namespace FactorioProxy.Services
         /// </summary>
         private int GetNextAvailablePort()
         {
-            return Interlocked.Increment(ref nextAvailablePort);
+            int port = Interlocked.Increment(ref nextAvailablePort);
+            if (port >= baseProxyPort + maxProxyContainers)
+            {
+                throw new InvalidOperationException("No available ports left within the configured range.");
+            }
+            return port;
         }
+
 
         /// <summary>
         /// Releases resources by stopping and removing all active containers.
